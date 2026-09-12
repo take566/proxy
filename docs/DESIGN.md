@@ -45,9 +45,14 @@ proxy/
 │  ├─ update-cacert.ps1     # 上流検証用 CA バンドル (Mozilla) 取得
 │  ├─ trust-ca-firefox.ps1  # Firefox ポリシー ImportEnterpriseRoots=1
 │  ├─ run-elevated.ps1      # 非管理者シェルから UAC 昇格して実行 (出力はログ経由)
+│  ├─ export-ca.ps1         # 他端末向け配布パッケージ dist/squid-ca.zip を生成 (秘密鍵は含まない)
 │  ├─ init-storage.ps1      # ssl_db 初期化 (security_file_certgen -c) と cache_dir 初期化 (squid -z)
 │  ├─ deploy-config.ps1     # conf/nobump 配備 → parse → サービス再起動
 │  └─ test-cache.ps1        # HTTP/HTTPS を 2 回取得し access.log の TCP_HIT / X-Cache を確認
+├─ client/                  # 配布パッケージに同梱するクライアント側スクリプト
+│  ├─ install-ca.ps1        # Windows: LocalMachine\Root 登録 + Firefox ポリシー
+│  └─ install-ca.sh         # macOS (security) / Debian (update-ca-certificates) / RHEL (update-ca-trust) / Arch (p11-kit)
+├─ dist/                    # export-ca.ps1 の出力 (.gitignore)
 └─ docker/                  # 旧 Linux (Ubuntu) 構成
 ```
 

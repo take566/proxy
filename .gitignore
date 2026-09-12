@@ -4,3 +4,4 @@
 *.crt
 *.pfx
 ssl/
+dist/
