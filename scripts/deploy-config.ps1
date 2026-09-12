@@ -10,8 +10,8 @@ param([switch]$NoRestart)
 Assert-Admin
 
 function Copy-Lf([string]$src, [string]$dst) {
-    # Cygwin 版 squid は CRLF も読めるが LF に揃える
-    $text = (Get-Content $src -Raw) -replace "`r`n", "`n"
+    # Cygwin 版 squid は CRLF も読めるが LF に揃える。UTF-8 を明示 (PS 5.1 の Get-Content は BOM 無しを ANSI 扱いする)
+    $text = [IO.File]::ReadAllText($src, [Text.Encoding]::UTF8) -replace "`r`n", "`n"
     [IO.File]::WriteAllText($dst, $text, (New-Object Text.UTF8Encoding $false))
 }
 
