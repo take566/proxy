@@ -48,6 +48,9 @@ Restart-Service squidsrv
 - プロキシ: `http://<このホスト>:3128`
 - HTTPS を復号するため、`D:\Squid\etc\squid\ssl\squid-ca.crt` を各クライアントの信頼されたルート証明機関に登録する
   (このホストは `gen-ca.ps1` が登録済み)。
+- 他端末向けには `.\scripts\export-ca.ps1` で `dist\squid-ca.zip` を作る (証明書 + `install-ca.ps1` / `install-ca.sh` + README.txt。秘密鍵は含まない)。
+  端末側で Windows は管理者 PowerShell で `install-ca.ps1`、macOS/Linux は `sudo ./install-ca.sh`、
+  iOS/Android は `squid-ca.crt` をプロファイルとしてインストール。テンプレートは `client/`。
 - Firefox は OS ストアを見ないため `scripts/trust-ca-firefox.ps1` でポリシー `ImportEnterpriseRoots=1` を設定する
   (`gen-ca.ps1` が Firefox 検出時に自動実行。Firefox 再起動後 `about:policies` で確認)。
 - 証明書ピンニングで壊れるサービスは `squid/nobump.txt` に追加する。
