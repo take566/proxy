@@ -55,6 +55,21 @@ Restart-Service squidsrv
   (`gen-ca.ps1` が Firefox 検出時に自動実行。Firefox 再起動後 `about:policies` で確認)。
 - 証明書ピンニングで壊れるサービスは `squid/nobump.txt` に追加する。
 
+## 復号で壊れたサイトの検出と nobump 追加
+
+`squid.conf` は CONNECT / https の要求を `D:\Squid\var\log\squid\sslbump.log`（bump_mode・SNI・err_code 付き）にも記録する。
+
+```powershell
+.\scripts\find-bump-errors.ps1              # 直近 24h で怪しいホストを表示 (-All で全件, -SinceMinutes 60)
+.\scripts\add-nobump.ps1 -Domain example.net -Deploy   # nobump.txt に .example.net を追加して配備
+```
+
+- `ClientAbort`: bump した CONNECT の後に HTTP 要求が来ていない = クライアントが Squid の証明書を拒否した可能性（ピンニング）。
+  ユーザーが読み込みを中断しただけの場合もあるので確認してから追加する。
+- `Errors`: `ERR_SECURE_CONNECT_FAIL` 等、上流との TLS 失敗（CA バンドルが古い場合は `update-cacert.ps1 -Force`）。
+- `add-nobump.ps1` は URL / ポート付きでも受け付け、先頭に `.` を補ってサブドメインを含める（`-Exact` で補わない）。
+  親ドメインでカバー済みなら追加しない。変更した `nobump.txt` は commit する。
+
 ## 注意
 
 - `*.key` / `*.pem` / `*.crt` は `.gitignore` 済み。**CA 秘密鍵は commit しない**。

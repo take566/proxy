@@ -48,7 +48,9 @@ proxy/
 │  ├─ export-ca.ps1         # 他端末向け配布パッケージ dist/squid-ca.zip を生成 (秘密鍵は含まない)
 │  ├─ init-storage.ps1      # ssl_db 初期化 (security_file_certgen -c) と cache_dir 初期化 (squid -z)
 │  ├─ deploy-config.ps1     # conf/nobump 配備 → parse → サービス再起動
-│  └─ test-cache.ps1        # HTTP/HTTPS を 2 回取得し access.log の TCP_HIT / X-Cache を確認
+│  ├─ test-cache.ps1        # HTTP/HTTPS を 2 回取得し access.log の TCP_HIT / X-Cache を確認
+│  ├─ find-bump-errors.ps1  # sslbump.log を集計し nobump 候補 (ClientAbort / Errors) を表示
+│  └─ add-nobump.ps1        # nobump.txt に追加 (正規化・重複排除) → -Deploy で配備
 ├─ client/                  # 配布パッケージに同梱するクライアント側スクリプト
 │  ├─ install-ca.ps1        # Windows: LocalMachine\Root 登録 + Firefox ポリシー
 │  └─ install-ca.sh         # macOS (security) / Debian (update-ca-certificates) / RHEL (update-ca-trust) / Arch (p11-kit)
@@ -69,6 +71,7 @@ proxy/
 | `cache_mem` / `maximum_object_size` | `256 MB` / `512 MB` | 大きめのバイナリもキャッシュ |
 | `refresh_pattern` | 既定 + 静的アセット（画像/JS/CSS/アーカイブ）を `10080 90% 43200` | ヒット率向上 |
 | `dns_nameservers` | Diladele 既定 (8.8.8.8 等) を踏襲 | Windows のリゾルバを Cygwin から使えない場合の保険 |
+| `logformat sslbump` / `access_log sslbump.log` | `%ssl::bump_mode %ssl::>sni %err_code/%err_detail` を CONNECT / https のみ記録 | cache.log の TLS エラーにはドメインが出ないため。`find-bump-errors.ps1` の入力 |
 
 ## 5. セキュリティ上の注意
 
