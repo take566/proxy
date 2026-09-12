@@ -64,6 +64,7 @@ proxy/
 |---|---|---|
 | `http_port` | `3128 ssl-bump generate-host-certificates=on dynamic_cert_mem_cache_size=16MB tls-cert=/etc/squid/ssl/squid-ca.pem tls-key=/etc/squid/ssl/squid-ca.key` | HTTPS 復号 |
 | `sslcrtd_program` | `/lib/squid/security_file_certgen -s /var/cache/squid_ssldb -M 16MB` | 動的証明書 |
+| `sslcrtd_children` | `16 startup=8 idle=4` | 起動直後から複数プロセスを待機させる。少ないと未訪問ドメインへの初回接続（証明書生成、約2秒/件）が直列にキューイングされ体感が重くなる（#9） |
 | `ssl_bump` | `peek step1` → `splice nobump` → `bump all` | SNI で判定してから bump |
 | `tls_outgoing_options` | `cafile=/etc/squid/ssl/cacert.pem` | Cygwin 版 Squid は OS の証明書ストアを見ないため Mozilla バンドルを明示（`update-cacert.ps1` で取得） |
 | `sslproxy_cert_error` | 指定しない（既定 deny） | 上流の不正証明書は通さない |
@@ -114,4 +115,18 @@ proxy/
   #1: HTTP/1.1 200 OK | X-Cache: MISS from squid-win
   #2: HTTP/1.1 200 OK | X-Cache: HIT from squid-win
 access.log: TCP_MEM_HIT/200 34320 GET https://www.gnu.org/graphics/heckert_gnu.transp.small.png - HIER_NONE/-
+```
+
+## 9. 表示が重い問題の調査 (2026-09-12, #9)
+
+未訪問ドメインへの初回 HTTPS 接続で動的証明書生成に約2秒かかり、`sslcrtd_children 5 startup=1 idle=1`
+（起動直後は1プロセスのみ）だとブラウザの多数同時接続（CDN/広告/フォント等）が直列にキューイングされ体感が重くなっていた。
+DNS（8.8.8.8固定 vs Windows既定リゾルバ）は誤差程度で原因ではないことを実測で除外。
+
+`sslcrtd_children 16 startup=8 idle=4` に変更し、未訪問ドメインへの並列アクセスで改善を確認:
+
+```
+5並列:  2.08s → 0.86s
+10並列: (旧設定なら直列待ちで10秒超) → 3.02s
+2回目アクセス (証明書キャッシュ後): 0.1s 未満 (変更前後で不変)
 ```
