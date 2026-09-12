@@ -66,5 +66,5 @@ if (-not $SkipImport) {
         Write-Step 'Importing into LocalMachine\Root'
         Import-Certificate -FilePath $CaCrt -CertStoreLocation Cert:\LocalMachine\Root | Out-Null
     }
-    Write-Host 'Firefox: set security.enterprise_roots.enabled = true in about:config.' -ForegroundColor Yellow
+    if (Test-FirefoxInstalled) { & (Join-Path $PSScriptRoot 'trust-ca-firefox.ps1') }
 }
