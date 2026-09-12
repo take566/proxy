@@ -30,6 +30,13 @@ Restart-Service squidsrv
 .\scripts\test-cache.ps1           # HTTP/HTTPS を 2 回取得して HIT を確認
 ```
 
+非管理者のシェルからは `run-elevated.ps1` 経由で実行できる (UAC ダイアログが出る。出力はログファイル経由で表示)。
+
+```powershell
+.\scripts\run-elevated.ps1 deploy-config.ps1
+.\scripts\run-elevated.ps1 init-storage.ps1 -Force
+```
+
 ## 設定変更の流れ
 
 1. `squid/squid.conf` または `squid/nobump.txt` を編集
@@ -40,7 +47,9 @@ Restart-Service squidsrv
 
 - プロキシ: `http://<このホスト>:3128`
 - HTTPS を復号するため、`D:\Squid\etc\squid\ssl\squid-ca.crt` を各クライアントの信頼されたルート証明機関に登録する
-  (このホストは `gen-ca.ps1` が登録済み)。Firefox は `security.enterprise_roots.enabled = true`。
+  (このホストは `gen-ca.ps1` が登録済み)。
+- Firefox は OS ストアを見ないため `scripts/trust-ca-firefox.ps1` でポリシー `ImportEnterpriseRoots=1` を設定する
+  (`gen-ca.ps1` が Firefox 検出時に自動実行。Firefox 再起動後 `about:policies` で確認)。
 - 証明書ピンニングで壊れるサービスは `squid/nobump.txt` に追加する。
 
 ## 注意

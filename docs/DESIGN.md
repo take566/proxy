@@ -43,6 +43,8 @@ proxy/
 │  ├─ install.ps1           # choco install → gen-ca → init-storage → deploy-config
 │  ├─ gen-ca.ps1            # CA 生成 + Windows 信頼ルート登録
 │  ├─ update-cacert.ps1     # 上流検証用 CA バンドル (Mozilla) 取得
+│  ├─ trust-ca-firefox.ps1  # Firefox ポリシー ImportEnterpriseRoots=1
+│  ├─ run-elevated.ps1      # 非管理者シェルから UAC 昇格して実行 (出力はログ経由)
 │  ├─ init-storage.ps1      # ssl_db 初期化 (security_file_certgen -c) と cache_dir 初期化 (squid -z)
 │  ├─ deploy-config.ps1     # conf/nobump 配備 → parse → サービス再起動
 │  └─ test-cache.ps1        # HTTP/HTTPS を 2 回取得し access.log の TCP_HIT / X-Cache を確認
@@ -69,7 +71,7 @@ proxy/
 - CA 秘密鍵は `D:\Squid\etc\squid\ssl\squid-ca.key` のみに置き、リポジトリ・共有には出さない。
 - Windows の `.ps1` は **UTF-8 BOM 付き**で保存する（PowerShell 5.1 が BOM 無しを Shift-JIS と解釈し、日本語コメント末尾が改行を飲み込む）。`.gitattributes` で `*.ps1` は CRLF。
 - `curl.exe`（Schannel）は動的証明書に CRL 配布点が無いため失効確認で失敗する → 検証時は `--ssl-no-revoke`。ブラウザは影響なし。
-- Firefox は OS ストアを見ないため `security.enterprise_roots.enabled=true` が必要。
+- Firefox は OS ストアを見ないため `scripts/trust-ca-firefox.ps1` でポリシー `HKLM\SOFTWARE\Policies\Mozilla\Firefox\Certificates\ImportEnterpriseRoots=1` を設定（`security.enterprise_roots.enabled` 相当）。
 - 証明書ピンニングを行うアプリ（Windows Update, 一部の SaaS クライアント、決済系）は `nobump.txt` に追加。
 
 ## 6. 検証手順（`scripts/test-cache.ps1`）

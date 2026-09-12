@@ -32,6 +32,12 @@ function Assert-Admin {
     if (-not (Test-IsAdmin)) { throw 'Run this script from an elevated (Administrator) PowerShell.' }
 }
 
+function Test-FirefoxInstalled {
+    $paths = @("$env:ProgramFiles\Mozilla Firefox\firefox.exe", "${env:ProgramFiles(x86)}\Mozilla Firefox\firefox.exe", "$env:LOCALAPPDATA\Mozilla Firefox\firefox.exe")
+    foreach ($p in $paths) { if (Test-Path $p) { return $true } }
+    return $false
+}
+
 function Find-OpenSsl {
     $cmd = Get-Command openssl.exe -ErrorAction SilentlyContinue
     if ($cmd) { return $cmd.Source }
