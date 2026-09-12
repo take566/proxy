@@ -1,0 +1,6 @@
+# CA 秘密鍵・証明書はローカル生成 (scripts/gen-ca.ps1)。commit しない
+*.key
+*.pem
+*.crt
+*.pfx
+ssl/

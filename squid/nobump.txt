@@ -1,0 +1,19 @@
+# SSL Bump しない (splice する) ドメイン。ssl::server_name 形式 (先頭 . でサブドメイン含む)
+# 証明書ピンニング / 独自クライアントで復号すると壊れるものを列挙する
+.windowsupdate.com
+.update.microsoft.com
+.delivery.mp.microsoft.com
+.login.microsoftonline.com
+.login.live.com
+.apple.com
+.icloud.com
+.1password.com
+.1password.eu
+.dropbox.com
+.dropboxapi.com
+.paypal.com
+.stripe.com
+.play.google.com
+.slack.com
+.zoom.us
+.zoom.com
